@@ -165,6 +165,11 @@ int main(int main_argc, char *main_argv[])
     // Clear display 
     clearDisplay();
 
+    setTextSize(1);
+    setTextColor(WHITE);
+    setCursor(10,0);
+    print_str("OSC TEST!");
+
     Display();
 
 	// OSC 
