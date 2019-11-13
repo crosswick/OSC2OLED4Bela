@@ -45,9 +45,6 @@ OSCServer oscServer;
 
 #define sampleFreq	50.0f		// sample frequency in Hz
 
-AuxiliaryTask osc2oledTask;		// Auxiliary task to read I2C
-
-
 /* Oh Compiler-Please leave me as is */
 volatile unsigned char flag = 0;
 
@@ -145,9 +142,6 @@ int main(int main_argc, char *main_argv[])
     signal(SIGINT, interrupt_handler);
     signal(SIGTERM, interrupt_handler);
 
-	// Function to be run, priority, name
-	osc2oledTask = Bela_createAuxiliaryTask(readOSC, 95, "osc2oled");
-	
     /* Initialize I2C bus and connect to the I2C Device */
     if(init_i2c_dev1(I2C_DEV1_PATH, SSD1306_OLED_ADDR) == 0)
     {
@@ -179,7 +173,7 @@ int main(int main_argc, char *main_argv[])
 	int sleepTime = 1000000/sampleFreq;
 	while(!gShouldStop)
 	{
-		Bela_scheduleAuxiliaryTask(osc2oledTask);
+		readOSC(0);
   		usleep(sleepTime);
 	}
 	return false;
