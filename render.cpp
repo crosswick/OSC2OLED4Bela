@@ -33,7 +33,7 @@ The Bela software is distributed under the GNU Lesser General Public License
 #include <unistd.h>
 #include <cmath>
 #include <math.h>
-#include <OSCServer.h>
+#include <libraries/OscReceiver/OscReceiver.h>
 
 extern "C" {
 #include "I2C.h"
@@ -41,7 +41,7 @@ extern "C" {
 #include "example_app.h"
 };
 
-OSCServer oscServer;
+OscReceiver oscReceiver;
 
 #define sampleFreq	50.0f		// sample frequency in Hz
 
@@ -61,7 +61,7 @@ void interrupt_handler(int var)
     gShouldStop = true;
 }
 
-int parseMessage(oscpkt::Message msg){
+int parseMessage(oscpkt::Message msg, void* arg){
     
     //rt_printf("received message to: %s\n", msg.addressPattern().c_str());
     clearDisplay();
@@ -168,32 +168,17 @@ int main(int main_argc, char *main_argv[])
 
 	// OSC 
     //oscClient.setup(remotePort, remoteIp);
-    oscServer.setup(localPort);
+    oscReceiver.setup(localPort, parseMessage);
 
 	int sleepTime = 1000000/sampleFreq;
 	while(!gShouldStop)
 	{
-		readOSC(0);
-  		usleep(sleepTime);
+		usleep(sleepTime);
 	}
 	return false;
 	
-    Bela_deleteAllAuxiliaryTasks();
 }
 
 
 void cleanup(BelaContext *context, void *userData)
 { }
-
-
-// Auxiliary task to read the I2C board
-void readOSC(void*)
-{
-	// receive OSC messages, parse them, and send back an acknowledgment
-    while (oscServer.messageWaiting()){
-        parseMessage(oscServer.popMessage());
-        //oscClient.queueMessage(oscClient.newMessage.to("/osc-acknowledge").add(count).add(4.2f).add(std::string("OSC message received")).end());
-    }
-	
-}
-
